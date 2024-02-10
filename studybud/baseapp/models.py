@@ -23,6 +23,9 @@ class Room(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        ordering = ["-updated", "-created"]         # with '-' is descending order (last will be the first)
+
 class Message(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) # -> foreignkey is to connect another table
     room = models.ForeignKey(Room, on_delete=models.SET_NULL, null=True)
