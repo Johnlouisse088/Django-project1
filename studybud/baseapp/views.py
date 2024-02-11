@@ -1,11 +1,29 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib.auth import authenticate, login, logout
 from .models import Room, Topic
 from .form import RoomForm
 
 
 # Create your views here.
 
+def loginpage(request):
+    context = {}
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect("home")
+        else:
+            return render(request, "error.html", context)
+
+    return render(request, "login.html", context)
+
+def logoutpage(request):
+    logout(request)
+    return redirect("home")
 
 def home(request):
     query = request.GET.get('q') if request.GET.get('q') is not None else ''
@@ -13,9 +31,11 @@ def home(request):
     print("test", query)
     rooms = Room.objects.filter(topic__name__icontains=query)   # icontains/contains(case sensitive)  # '' means all contains
     topics = Topic.objects.all()
+    count_room = rooms.count()
     content = {
         "rooms": rooms,
-        "topics": topics
+        "topics": topics,
+        "room_count": count_room
     }
     return render(request, "home.html", content)
 
