@@ -1,9 +1,11 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required       # for login verification
 from django.contrib.auth.models import User
-from django.db.models import Q              # -> You can use 'AND' or 'OR' logic
-from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages                             # message
+from django.db.models import Q                                    # -> You can use 'AND' or 'OR' logic
 from .models import Room, Topic
 from .form import RoomForm
 
@@ -14,11 +16,12 @@ from .form import RoomForm
 
 
 def loginpage(request):
+    if request.user.is_authenticated:
+        return redirect("home")
+
     if request.method == "POST":
-        username = request.POST.get("username")
+        username = request.POST.get("username").lower()
         password = request.POST.get("password")
-        print("test", username)
-        print("test", password)
 
         user = authenticate(request, username=username, password=password)  # Check if username and password exist in user admin
         if user is not None:
@@ -28,10 +31,33 @@ def loginpage(request):
             messages.error(request, "Username or password does not exist")
 
 
-
-    context = {}
+    page = "login"
+    context = {
+        "ispage": page
+    }
     return render(request, "loginpage.html", context)
 
+def registerpage(request):
+    form = UserCreationForm()                    # for registration of user
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)   # request.POST came from front-end (all data they filled)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            login(request, user)
+            return redirect("home")
+        else:
+            messages.error(request, "MORON!")
+
+
+    page = "register"
+    context = {
+        "ispage": page,
+        "form": form
+    }
+
+    return render(request, "loginpage.html", context )
 def logoutpage(request):
     logout(request)                         # -> it will delete a session id in cookies (inspect > application)
     return redirect("home")
@@ -57,12 +83,13 @@ def home(request):
 
 
 def room(request, id):
+
     rooms = Room.objects.values()
     room = Room.objects.get(id=id)
     context = {"dict1": room}
     return render(request, "room.html", context)
 
-
+@login_required(login_url="login")
 def create(request):
     form = RoomForm()
     context = {"form": form}
@@ -73,10 +100,14 @@ def create(request):
             return redirect("home")         # -> the name from urls.py (eg. name="home")  # back to homepage
     return render(request, "room_form.html", context)
 
-
+@login_required(login_url="login")
 def update(request, id):
+
     room_id = Room.objects.get(id=id)
     form = RoomForm(instance=room_id)   # -> instance is use to specify the specific info of the data (get 1 row of data)
+
+    if request.user != room_id.host:
+        return HttpResponse("You're not allowed here!")
 
     if request.method == "POST":
         form = RoomForm(request.POST, instance=room_id)  # use instance to update the specific data (without instance, you will create)
@@ -86,9 +117,12 @@ def update(request, id):
 
     context = {"form": form}
     return render(request, "room_form.html", context)
-
+@login_required(login_url="login")
 def delete(request, id):
+
     room_id = Room.objects.get(id=id)
+    if request.user != room_id.host:
+        return HttpResponse("You're not allowed here!")
     if request.method == "POST":
         room_id.delete()
         return redirect("home")
