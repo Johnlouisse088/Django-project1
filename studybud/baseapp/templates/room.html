@@ -2,4 +2,23 @@
 
 {% block content %}
 <h1>Hello from {{dict1.name}} community!</h1>
+
+<h2>Conversation</h2>
+<hr>
+<div class="Conversation">
+    {% for room in room_message %}
+        <p>@{{room.user}} {{room.created | time}}</p>
+        <h4>{{room.body}}</h4>
+    {% endfor %}
+    <hr>
+</div>
+
+<div class="text-wrapper">
+    <form method="POST" name="">
+        {% csrf_token %}
+        <input type="text" name="body" placeholder="Write your text" >
+    </form>
+
+</div>
+
 {% endblock %}

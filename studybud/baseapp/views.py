@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages                             # message
 from django.db.models import Q                                    # -> You can use 'AND' or 'OR' logic
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from .form import RoomForm
 
 
@@ -84,9 +84,22 @@ def home(request):
 
 def room(request, id):
 
-    rooms = Room.objects.values()
     room = Room.objects.get(id=id)
-    context = {"dict1": room}
+    room_message = room.message_set.all()
+
+    if request.method == "POST":
+        messages = Message.objects.create (
+            user = request.user,
+            room = room,
+            body = request.POST.get("body")
+        )
+        messages.save()
+        return redirect("room", room.id)
+
+    context = {
+        "dict1": room,
+        "room_message": room_message
+    }
     return render(request, "room.html", context)
 
 @login_required(login_url="login")
