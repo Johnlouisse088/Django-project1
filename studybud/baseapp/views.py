@@ -6,7 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages                             # message
 from django.db.models import Q                                    # -> You can use 'AND' or 'OR' logic
-from .models import Room, Topic
+from .models import Room, Topic, Message
 from .form import RoomForm
 
 
@@ -84,9 +84,19 @@ def home(request):
 
 def room(request, id):
 
-    rooms = Room.objects.values()
     room = Room.objects.get(id=id)
-    context = {"dict1": room}
+    room_message = room.message_set.all()           # <parent_table>.<child_talbe(lowecase)>.message_set.all() -> call all data from child table which is the message
+    if request.method == "POST":
+        create_message = Message.objects.create(    # create data to Message table
+            user = request.user,
+            room = room,
+            body = request.POST.get("body")        # the 'body' is from the html attribute with the name of 'name' // like in dictionary, you need to call the key first before you access the value
+        )
+        return redirect("room", id=room.id)     # you need to pass the 2 arguiments becuase it is the requirement in url > function (room)
+    context = {
+        "room": room,
+        "room_messages": room_message
+    }
     return render(request, "room.html", context)
 
 @login_required(login_url="login")
