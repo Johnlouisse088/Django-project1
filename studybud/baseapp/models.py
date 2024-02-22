@@ -12,11 +12,13 @@ class Topic(models.Model):
         return self.name
 
 class Room(models.Model):
+    # models.ForeignKey() -> Many to one relationship
+    # models.ManyToMany() -> Many to Many relationship
     host = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)       # when User table got deleted the host data will set to Null
     topic = models.ForeignKey(Topic, on_delete=models.SET_NULL, null=True)     # Cascade - when User table got deleted the host data will delete too
     name = models.CharField(max_length=255)
     description = models.TextField(null=True, blank=True)
-    # participant =
+    participant = models.ManyToManyField(User, related_name="participants", blank=True)   # models.ManyToManyField(<Tablename>,<name use in views.py>, it's okay to get an empty value in participants) # related_name = name in admin panel
     updated = models.DateTimeField(auto_now=True)
     created = models.DateTimeField(auto_now_add=True)
 

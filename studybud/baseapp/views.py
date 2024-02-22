@@ -85,17 +85,21 @@ def home(request):
 def room(request, id):
 
     room = Room.objects.get(id=id)
-    room_message = room.message_set.all()           # <parent_table>.<child_talbe(lowecase)>.message_set.all() -> call all data from child table which is the message
+    room_message = room.message_set.all()           # <parent_table>.<child_talbe(lowecase)>.message_set.all() -> call all data from child table which is the message (many to one)
+    room_participants = room.participant.all()      # get the child of Room (id is equal to 1)
     if request.method == "POST":
         create_message = Message.objects.create(    # create data to Message table
             user = request.user,
             room = room,
             body = request.POST.get("body")        # the 'body' is from the html attribute with the name of 'name' // like in dictionary, you need to call the key first before you access the value
         )
+        room.participant.add(request.user)          # add in participant attribute. (The arguiment are whole information of the user, NOT only the name!)
         return redirect("room", id=room.id)     # you need to pass the 2 arguiments becuase it is the requirement in url > function (room)
+
     context = {
         "room": room,
-        "room_messages": room_message
+        "room_messages": room_message,
+        "room_participants": room_participants
     }
     return render(request, "room.html", context)
 

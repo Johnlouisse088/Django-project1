@@ -4,7 +4,7 @@
 <form method="GET" action="/">
     <input type="text" name="q" placeholder="Search Rooms...">    <! –– "q" serves as the key, and the value is the text entered into the input field. ––>
 </form>
-
+<h2>Hello {{request.user}}</h2>
 {% if request.user.is_authenticated %}
     <a href="/logout">Logout</a>
 {% else %}
