@@ -86,16 +86,19 @@ def room(request, id):
 
     room = Room.objects.get(id=id)
     room_message = room.message_set.all()           # <parent_table>.<child_talbe(lowecase)>.message_set.all() -> call all data from child table which is the message
+    room_participants = room.participants.all()
     if request.method == "POST":
         create_message = Message.objects.create(    # create data to Message table
             user = request.user,
             room = room,
             body = request.POST.get("body")        # the 'body' is from the html attribute with the name of 'name' // like in dictionary, you need to call the key first before you access the value
         )
+        room.participants.add(request.user)
         return redirect("room", id=room.id)     # you need to pass the 2 arguiments becuase it is the requirement in url > function (room)
     context = {
         "room": room,
-        "room_messages": room_message
+        "room_messages": room_message,
+        "room_participants": room_participants
     }
     return render(request, "room.html", context)
 
@@ -137,6 +140,17 @@ def delete(request, id):
         room_id.delete()
         return redirect("home")
     context = {"room": room_id}
+    return render(request, "delete.html", context)
+
+def delete_message(request, id):
+
+    room_id = Message.objects.get(id=id)
+    if request.method == "POST":
+        room_id.delete()
+        return redirect("room")
+    context = {
+        "room": room_id
+    }
     return render(request, "delete.html", context)
 
 
