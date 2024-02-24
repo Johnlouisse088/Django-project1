@@ -144,6 +144,20 @@ def delete(request, id):
     return render(request, "delete.html", context)
 
 
+@login_required(login_url="login")
+def delete_message(request, id):
+
+    room_id = Message.objects.get(id=id)
+    if request.method == "POST":
+        room_id.delete()
+        return redirect("room")
+    context = {
+        "room": room_id
+    }
+
+    return render(request, "delete.html", context)
+
+
 
 
 
