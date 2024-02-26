@@ -72,15 +72,32 @@ def home(request):
         Q(description__icontains=query)
     )
     room_count = rooms.count()
+    room_message = Message.objects.filter(
+        Q(room__topic__name__icontains=query)
+    )
 
     topics = Topic.objects.all()
     content = {
         "rooms": rooms,
         "topics": topics,
-        "room_count": room_count
+        "room_count": room_count,
+        "room_message": room_message
     }
     return render(request, "home.html", content)
 
+def profile(request, id):
+    user = User.objects.get(id=id)
+    topics = Topic.objects.all()            # left side
+    room_message = user.message_set.all()    # right side
+    rooms = user.room_set.all()
+
+    context = {
+        "user": user,
+        "rooms": rooms,
+        "room_message": room_message,
+        "topics": topics
+    }
+    return render(request, "profle.html", context)
 
 def room(request, id):
 

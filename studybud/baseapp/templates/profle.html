@@ -3,15 +3,16 @@
 {% block content %}
 
 <style>
-    .home-container{
+    .profile-wrapper{
         display: grid;
         grid-template-columns: 1fr 3fr 1fr;
     }
-
 </style>
 
-<div class="home-container">
+<h3>PROFILE</h3>
+<p>{{user.username}}</p>
 
+<div class="profile-wrapper">
     <div>
         <h3>Browse Topics</h3>
         <div><a href="/">All</a></div>
