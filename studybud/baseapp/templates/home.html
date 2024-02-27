@@ -1,33 +1,19 @@
-{% extends 'main.html' %}
+{% extends "main.html" %}
 
-{% block content %}
+{% block content%}
+  <main class="layout layout--3">
+    <div class="container">
+      <!-- Topics Start -->
+      {% include "topics_component.html" %}
+      <!-- Topics End -->
 
-<style>
-    .home-container{
-        display: grid;
-        grid-template-columns: 1fr 3fr 1fr;
-    }
+      <!-- Room List Start -->
+      {% include "feed_component.html" %}
+      <!-- Room List End -->
 
-</style>
-
-<div class="home-container">
-
-    <div>
-        {% include "topics_component.html" %}
+      <!-- Activities Start -->
+      {% include "activity_component.html" %}
+      <!-- Activities End -->
     </div>
-    <div>
-        <a href="create-room/">Create room</a>
-        <h5>{{room_count}} rooms are available</h5>
-        <div>
-            {% include "activity_component.html" %}
-        </div>
-    </div>
-
-    <div>
-        {% include "feed_component.html" %}
-
-    </div>
-
-</div>
-
+  </main>
 {% endblock %}
