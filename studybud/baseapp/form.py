@@ -6,5 +6,6 @@ class RoomForm(ModelForm):
     class Meta:
         model = Room                # -> table name
         fields = '__all__'          # -> all fields from Room table at models.py (eg. host, topic, name, etc)
+        exclude = ["host", "participant"]
 
 
