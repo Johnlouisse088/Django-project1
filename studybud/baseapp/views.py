@@ -101,7 +101,7 @@ def profile(request, id):
 
 def room(request, id):
 
-    room = Room.objects.get(id=id)
+    room = Room.objects.all().get(id=id)
     room_message = room.message_set.all()           # <parent_table>.<child_talbe(lowecase)>.message_set.all() -> call all data from child table which is the message (many to one)
     room_participants = room.participant.all()      # get the child of Room (id is equal to 1)
     if request.method == "POST":
@@ -123,12 +123,29 @@ def room(request, id):
 @login_required(login_url="login")
 def create(request):
     form = RoomForm()
-    context = {"form": form}
+    topics = Topic.objects.all()
+    context = {
+        "form": form,
+        "topics": topics
+    }
     if request.method == "POST":
-        form = RoomForm(request.POST)       # -> create new  Room table!
-        if form.is_valid():
-            form.save()                     # -> save() is like in model syntax
-            return redirect("home")         # -> the name from urls.py (eg. name="home")  # back to homepage
+        topic_name = request.POST.get("topic")
+        topics, created = Topic.objects.get_or_create(name=topic_name)
+        create_room = Room.objects.create(
+            host = request.user,
+            topic = topics,
+            name = request.POST.get("name"),
+            description = request.POST.get("description")
+        )
+        return redirect("home")
+        # form = RoomForm(request.POST)  # -> create new  Room table!
+        # if form.is_valid():
+        #     room = form.save(commit=False)
+        #     room.host = request.user
+        #     room.save()
+            # form.save()                     # -> save() is like in model syntax
+            # return redirect("home")         # -> the name from urls.py (eg. name="home")  # back to homepage
+
     return render(request, "room_form.html", context)
 
 @login_required(login_url="login")
@@ -136,17 +153,26 @@ def update(request, id):
 
     room_id = Room.objects.get(id=id)
     form = RoomForm(instance=room_id)   # -> instance is use to specify the specific info of the data (get 1 row of data)
-
+    topics = Topic.objects.all()
     if request.user != room_id.host:
         return HttpResponse("You're not allowed here!")
 
     if request.method == "POST":
-        form = RoomForm(request.POST, instance=room_id)  # use instance to update the specific data (without instance, you will create)
-        if form.is_valid():
-            form.save()
-            return redirect("home")
+        topic_name = request.POST.get("topic")
+        topic, created = Topic.objects.get_or_create(name=topic_name)
+        room_id.topic = topic
+        room_id.name = request.POST.get("name")
+        room_id.description = request.POST.get("description")
+        room_id.save()
+        # form = RoomForm(request.POST, instance=room_id)  # use instance to update the specific data (without instance, you will create)
+        # if form.is_valid():
+        #     form.save()
+        return redirect("home")
 
-    context = {"form": form}
+    context = {
+        "form": form,
+        "topics": topics
+    }
     return render(request, "room_form.html", context)
 @login_required(login_url="login")
 def delete(request, id):

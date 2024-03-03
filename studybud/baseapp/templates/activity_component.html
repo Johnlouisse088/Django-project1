@@ -1,8 +1,8 @@
 <div class="activities">
-    {% for room in rooms%}
     <div class="activities__header">
     <h2>Recent Activities</h2>
     </div>
+        {% for room in rooms%}
         <div class="activities__box">
           <div class="activities__boxHeader roomListRoom__header">
             <a href="/profile/{{room.host.id}}" class="roomListRoom__author">
