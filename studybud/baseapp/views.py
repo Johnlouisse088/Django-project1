@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages                             # message
 from django.db.models import Q                                    # -> You can use 'AND' or 'OR' logic
 from .models import Room, Topic, Message
-from .form import RoomForm
+from .form import RoomForm, UserForm
 
 
 
@@ -121,6 +121,19 @@ def room(request, id):
     return render(request, "room.html", context)
 
 @login_required(login_url="login")
+def profile_update(request):
+    user = request.user
+    form = UserForm(instance=user)
+    if request.method == "POST":
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect("profile", id=user.id)
+    context = {
+        "form": form
+    }
+    return render(request, "update-user.html", context)
+@login_required(login_url="login")
 def create(request):
     form = RoomForm()
     topics = Topic.objects.all()
@@ -147,6 +160,7 @@ def create(request):
             # return redirect("home")         # -> the name from urls.py (eg. name="home")  # back to homepage
 
     return render(request, "room_form.html", context)
+
 
 @login_required(login_url="login")
 def update(request, id):
@@ -179,6 +193,7 @@ def delete(request, id):
 
     room_id = Room.objects.get(id=id)
     if request.user != room_id.host:
+        print("test", request.user.username, room_id.host.username)
         return HttpResponse("You're not allowed here!")
     if request.method == "POST":
         room_id.delete()

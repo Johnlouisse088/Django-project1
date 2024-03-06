@@ -1,0 +1,10 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<form method="POST" action="">
+    {% csrf_token %}
+    <h3>Are you sure you want to delete the "{{room}}" ?</h3>
+    <span><a href="/"> back to homepage</a></span>
+    <input type="submit" value="Submit">
+</form>
+{% endblock %}
