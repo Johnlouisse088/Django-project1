@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages                             # message
 from django.db.models import Q                                    # -> You can use 'AND' or 'OR' logic
 from .models import Room, Topic, Message
-from .form import RoomForm
+from .form import RoomForm, UserForm
 
 
 
@@ -97,6 +97,22 @@ def profile(request, id):
         "room_message": room_message
     }
     return render(request, "profile.html", context)
+
+
+def update_profile(request, id):
+    user_id = User.objects.all().get(id=id)
+    user_form = UserForm(instance=user_id)
+
+    if request.method == "POST":
+        user_form = UserForm(request.POST, instance=user_id)    # use instance parameter to specify what the user profile will be update
+        if user_form.is_valid():
+            user_form.save()
+            return redirect("home")
+
+    context = {
+        "user_form": user_form
+    }
+    return render(request, "update_user.html", context)
 
 
 def room(request, id):
@@ -201,17 +217,20 @@ def delete_message(request, id):
     return render(request, "delete.html", context)
 
 
+def topic_page(request):
+    q = request.GET.get("body") if request.GET.get("body") is not None else ""
+    topics = Topic.objects.filter(
+        name__icontains = q
+    )
+    context = {
+        "topics": topics
+    }
+    return render(request, "topics.html", context)
 
-
-
-
-
-
-
-
-
-
-
-
-
+def activity_page(request):
+    rooms = Room.objects.all()[:3]
+    context = {
+        "rooms": rooms
+    }
+    return render(request, "activity.html", context)
 
