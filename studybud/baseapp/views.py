@@ -125,7 +125,7 @@ def profile_update(request):
     user = request.user
     form = UserForm(instance=user)
     if request.method == "POST":
-        form = UserForm(request.POST, instance=user)
+        form = UserForm(request.POST, instance=user)        # use instance parameter to specify what the user profile will be update
         if form.is_valid():
             form.save()
             return redirect("profile", id=user.id)
