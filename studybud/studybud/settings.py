@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'rest_framework',
 ]
 
+AUTH_USER_MODEL = "baseapp.User"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -123,10 +125,14 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 STATIC_URL = 'static/'
+MEDIA_URL = '/media/'           # 'uploaded image' by the user, it use to generate url for accessing template
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'baseapp/static/images')
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'mystaticfiles'),
 ]
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
