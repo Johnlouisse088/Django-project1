@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required       # for login verification
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User                     # django-built in for user model
+from django.contrib.auth.forms import UserCreationForm          # django-built in for user creation
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages                             # message
-from django.db.models import Q                                    # -> You can use 'AND' or 'OR' logic
-from .models import Room, Topic, Message
-from .form import RoomForm, UserForm
+from django.db.models import Q                                  # -> You can use 'AND' or 'OR' logic
+from .models import Room, Topic, Message, User
+from .form import RoomForm, UserForm, MyUserCreationForm
 
 
 
@@ -20,10 +20,10 @@ def loginpage(request):
         return redirect("home")
 
     if request.method == "POST":
-        username = request.POST.get("username").lower()
+        email = request.POST.get("email").lower()
         password = request.POST.get("password")
 
-        user = authenticate(request, username=username, password=password)  # Check if username and password exist in user admin
+        user = authenticate(request, email=email, password=password)  # Check if username and password exist in user admin
         if user is not None:
             login(request, user)                # -> it will create a session id in cookies (inspect > application)
             return redirect("home")
@@ -38,9 +38,9 @@ def loginpage(request):
     return render(request, "loginpage.html", context)
 
 def registerpage(request):
-    form = UserCreationForm()                    # for registration of user
+    form = MyUserCreationForm()                    # for registration of user from form.py
     if request.method == "POST":
-        form = UserCreationForm(request.POST)   # request.POST came from front-end (all data they filled)
+        form = MyUserCreationForm(request.POST)   # request.POST came from front-end (all data they filled)
         if form.is_valid():
             user = form.save(commit=False)
             user.username = user.username.lower()
@@ -125,7 +125,7 @@ def profile_update(request):
     user = request.user
     form = UserForm(instance=user)
     if request.method == "POST":
-        form = UserForm(request.POST, instance=user)        # use instance parameter to specify what the user profile will be update
+        form = UserForm(request.POST, request.FILES ,instance=user)        # request.file - receive from enctype in html file # use instance parameter to specify what the user profile will be update
         if form.is_valid():
             form.save()
             return redirect("profile", id=user.id)
