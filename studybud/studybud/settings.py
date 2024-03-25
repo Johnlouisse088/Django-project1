@@ -121,13 +121,13 @@ import os
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))      # -> studybud
 STATIC_ROOT = os.path.join(BASE_DIR, 'collected_static')
 
 STATIC_URL = 'static/'
-MEDIA_URL = '/media/'           # 'uploaded image' by the user, it use to generate url for accessing template
+MEDIA_URL = '/media/'                      # 'uploaded image' by the user, it use to generate url for accessing template
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'baseapp/static/images')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'baseapp/static/images')    # where the image will store
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'mystaticfiles'),
