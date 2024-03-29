@@ -77,11 +77,13 @@ def home(request):
     room_message = Message.objects.filter(
         Q(room__topic__name__icontains=query)
     )
+    recent_messages = Message.objects.all()
     content = {
         "rooms": rooms,
         "topics": topics,
         "room_count": room_count,
-        "room_message": room_message
+        "room_message": room_message,
+        "recent_messages": recent_messages,
     }
     return render(request, "home.html", content)
 
@@ -98,7 +100,7 @@ def profile(request, id):
     }
     return render(request, "profile.html", context)
 
-
+@login_required(login_url="login")
 def room(request, id):
 
     room = Room.objects.all().get(id=id)
